@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Confessions</title>
+    <link rel="stylesheet" href="/static/instagram_style.css">
+</head>
+
+<style>
+    .button {
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 5px;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <h1>Priye : Confess to Crush</h1>
+        <div class="confession-list">
+            {% for confession in confessions %}
+            <div class="confession-card">
+                <p>"{{ confession[1] }}"</p>
+                <p class="username">- {{ confession[3] }}</p>
+                <p class="timestamp">{{ confession[2] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="/" class="button">Go Back</a>
+    </div>
+</body>
+
+</html>

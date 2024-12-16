@@ -1,0 +1,39 @@
+.confession-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.confession-card {
+    background: linear-gradient(135deg, #ff7eb3, hsl(350, 100%, 73%));
+    color: black;
+    border: 3px solid black;
+    font-size: 1.2rem;
+    padding: 20px;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.username {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.timestamp {
+    font-size: 0.8rem;
+    margin-top: 5px;
+    color: black;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+}
