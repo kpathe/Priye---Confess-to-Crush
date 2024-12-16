@@ -1,65 +1,69 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
 from datetime import datetime
 import random
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
-# Generate random names for confessions
-def generate_random_name():
-    adjectives = ['Brave', 'Mysterious', 'Clever', 'Shy', 'Curious', 'Gentle', 'Witty', 'Bold']
-    nouns = ['Panda', 'Tiger', 'Eagle', 'Fox', 'Dolphin', 'Phoenix', 'Owl', 'Dragon']
-    return f"{random.choice(adjectives)} {random.choice(nouns)}"
+# Helper function to generate random usernames
+def generate_username():
+    adjectives = ['Mystic', 'Anonymous', 'Silent', 'Clever', 'Brave', 'Shy', 'Hidden', 'Mysterious']
+    nouns = ['Shadow', 'Penguin', 'Fox', 'Tiger', 'Wizard', 'Knight', 'Dragon', 'Whale']
+    return f"{random.choice(adjectives)}{random.choice(nouns)}{random.randint(10, 999)}"
 
-# Database initialization
+# Initialize the database
 def init_db():
-    with sqlite3.connect('database.db') as conn:
-        c = conn.cursor()
-        c.execute('''
+    with sqlite3.connect("database.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS confessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                confession TEXT NOT NULL,
-                timestamp TEXT NOT NULL
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                username TEXT NOT NULL
             )
-        ''')
+        """)
         conn.commit()
 
-# Home page
-@app.route("/")
-def home():
-    return render_template("index.html")
+# Home Page
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# Add a confession
-@app.route("/add", methods=["GET", "POST"])
-def add_confession():
-    if request.method == "POST":
-        confession_text = request.form["confession"]
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        random_name = generate_random_name()
+# Submit Confession
+@app.route('/submit', methods=['GET', 'POST'])
+def submit_confession():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        if not content.strip():
+            flash("Confession cannot be empty!", "error")
+            return redirect(url_for('submit_confession'))
 
-        with sqlite3.connect('database.db') as conn:
-            c = conn.cursor()
-            c.execute('''
-                INSERT INTO confessions (name, confession, timestamp)
-                VALUES (?, ?, ?)
-            ''', (random_name, confession_text, timestamp))
+        # Generate timestamp and username
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        username = generate_username()
+
+        with sqlite3.connect("database.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO confessions (content, created_at, username) VALUES (?, ?, ?)",
+                (content, timestamp, username)
+            )
             conn.commit()
+        flash("Confession submitted successfully!", "success")
+        return redirect(url_for('index'))
+    return render_template('submit.html')
 
-        return redirect(url_for("view_confessions"))
-
-    return render_template("add.html")
-
-# View all confessions
-@app.route("/view")
+# View Confessions
+@app.route('/view')
 def view_confessions():
-    with sqlite3.connect('database.db') as conn:
-        c = conn.cursor()
-        c.execute('SELECT name, confession, timestamp FROM confessions ORDER BY id DESC')
-        confessions = c.fetchall()
+    with sqlite3.connect("database.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM confessions ORDER BY id DESC")
+        confessions = cursor.fetchall()
+    return render_template('view.html', confessions=confessions)
 
-    return render_template("view.html", confessions=confessions)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     init_db()
     app.run(debug=True)
